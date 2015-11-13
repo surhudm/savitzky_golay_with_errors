@@ -5,6 +5,12 @@ Simple Savitzky Golay interpolator, assuming the data has errorbars.
 Utilizes numpy.polyfit
 Author: Surhud More (Kavli IPMU)
 Email bug reports to surhudkicp [at] gmail.com
+
+TODO:
+    Python 3 compatibility
+    Add support for covariance
+    Check that window_length and degree are integers
+    Checks that y and error are arrays
 '''
 def savgol_filter_werror(y, window_length, degree, error, deriv=None):
     ynew = y * 0.0
@@ -16,7 +22,7 @@ def savgol_filter_werror(y, window_length, degree, error, deriv=None):
         exit(11)
 
     # Only change xnew where the window length does not fall over
-    margin = window_length/2
+    margin = int(window_length/2)
     xarr = np.arange(-margin, margin+1)
     for i in range(margin, y.size-margin):
         # Now obtain solution using polyfit
