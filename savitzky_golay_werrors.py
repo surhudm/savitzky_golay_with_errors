@@ -42,6 +42,6 @@ def savgol_filter_werror(y, window_length, degree, error, deriv=None):
     if deriv is not None:
         p = np.polyder(p, m=deriv)
     for i in range(margin):
-        ynew[y.size-margin+i] = p(xarr[i])
+        ynew[y.size-margin+i] = p(xarr[i+margin+1])
 
     return ynew
