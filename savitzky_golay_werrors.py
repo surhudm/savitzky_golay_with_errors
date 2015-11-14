@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.linalg import svd, inv
+from numpy.polynomial import polynomial as P
 
 '''
 Simple Savitzky Golay interpolator, assuming the data has errorbars.
@@ -34,10 +35,11 @@ def savgol_filter_werror(y, window_length, degree, error, cov=None, deriv=None):
         #  (a0 a1 a2 .. an) = Q (a0' a1' ... an')
         covinv = inv(cov)
         weight, Q = eigh(covinv)
+        weight = weight**0.5
 
         y = np.dot(np.transpose(Q), y)
     else:
-        weight = 1./error**2
+        weight = 1./error
 
     # Check that window_length is odd
     if window_length % 2 == 0:
@@ -49,36 +51,33 @@ def savgol_filter_werror(y, window_length, degree, error, cov=None, deriv=None):
     xarr = np.arange(-margin, margin+1)
     for i in range(margin, y.size-margin):
         # Obtain solution using polyfit
-        z = np.polyfit(xarr, y[i-margin:i+margin+1], deg=degree, w=weight[i-margin:i+margin+1])
+        z = P.polyfit(xarr, y[i-margin:i+margin+1], deg=degree, w=weight[i-margin:i+margin+1])
 
         # Backout real solution if covariance is present
         if cov is not None:
             z = np.dot(Q, z)
-        p = np.poly1d(z)
         if deriv is not None:
-            p = np.polyder(p, m=deriv)
-        ynew[i] = p[0]
+            z = P.polyder(z, m=deriv)
+        ynew[i] = P.polyval(0, z)
 
     # Now fit the left boundary, by fitting the first window_length points with
     # a degree order polynomial
-    z = np.polyfit(xarr, y[:window_length], deg=degree, w=weight[:window_length])
+    z = P.polyfit(xarr, y[:window_length], deg=degree, w=weight[:window_length])
     if cov is not None:
         z = np.dot(Q, z)
-    p = np.poly1d(z)
     if deriv is not None:
-        p = np.polyder(p, m=deriv)
+        z = P.polyder(z, m=deriv)
     for i in range(margin):
-        ynew[i] = p(xarr[i])
+        ynew[i] = P.polyval(xarr[i], z)
 
     # Now fit the right boundary, by fitting the last window_length points with
     # a degree order polynomial
-    z = np.polyfit(xarr, y[-window_length:], deg=degree, w=weight[-window_length:])
+    z = P.polyfit(xarr, y[-window_length:], deg=degree, w=weight[-window_length:])
     if cov is not None:
         z = np.dot(Q, z)
-    p = np.poly1d(z)
     if deriv is not None:
-        p = np.polyder(p, m=deriv)
+        z = P.polyder(z, m=deriv)
     for i in range(margin):
-        ynew[y.size-margin+i] = p(xarr[i+margin+1])
+        ynew[y.size-margin+i] = P.polyval(xarr[i+margin+1], z)
 
     return ynew
