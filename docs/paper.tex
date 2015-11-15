@@ -32,7 +32,7 @@
 
 %\journalinfo{The Astrophysical Journal, {\rm 789:1 (18pp), 2014 July 1}}
 %\submitted{Received 2014 January 6; accepted 2014 April 14; published 2014 June 9}
-\slugcomment{To be submitted to the Astrophysical Journal}
+\slugcomment{Only submitted to the arXiv}
 
 \begin{document}
 
@@ -65,8 +65,8 @@ smoothing it and allowing a less noisy computation of the derivative. The
 commonly used filter developed by Savitzky \& Golay based on a simplified least
 squares procedure assumes equal errorbars on all data points. I present a simple
 extension of this filter to heteroscedastic errors with covariance, a typical
-case for many scientific datasets. A python implementation is provided for ease
-of use.
+case for many scientific datasets. A python implementation has been made
+available at http://github.com/surhudm/savitzky\_golay\_with\_errors for ease of use.
 \end{abstract}
 
 \keywords{}
@@ -120,8 +120,8 @@ data points with errors. This problem can be reduced to a matrix equation
 involving the error weighted Vandermonde matrix of the abscissa of the data.
 This is a well known problem in linear algebra, and various mathematical
 libraries such as numpy in Python implement a solution to this problem. Many
-of these libraries (for example, numpy.polynomial) however only accepts errors
-without dealing with the covariance between these errors.
+of these libraries (for example, polyfit in  numpy.polynomial) however only
+accepts errors without dealing with the covariance between these errors.
 
 To overcome this issue, I reduce the problem of data with covariant errors to
 one where the errors are independent. The $\chi^2$ metric for the polynomial
@@ -152,7 +152,8 @@ is then related to our desired solution ${\bf a}$ by ${\bf a}={\bf Q}{\bf a'}$.
 
 We provide a convenient python routine which implements the above equations,
 utilizes the standard polynomial fitting algorithm in the numpy library and
-gives the optimally filtered data. This routine is available online at http://github.com/surhudm/savitzky-golay-werrors .
+gives the optimally filtered data. This routine has been made available online.
+\footnote{http://github.com/surhudm/savitzky\_golay\_with\_errors}
 
 As a simple example let us consider data drawn from a sinusoid with
 heteroscedastic errors. The traditional Savitzky Golay fit is compared to the
