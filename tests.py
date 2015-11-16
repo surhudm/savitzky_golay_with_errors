@@ -9,9 +9,61 @@ import savitzky_golay_werrors
 
 def main():
 
-	testSine()
+	#testSine()
 	#testSineEqualWeights()
+        testSine_wsimplecov()
 	#testSpeed()
+
+	return
+
+###################################################################################################
+
+def testSine_wsimplecov():
+
+	scatter_av = 0.1
+	scatter_sigma = 0.05
+	window = 15
+	order = 4
+
+	xx = np.arange(0.0, 10.0, 0.01)
+	y_true = np.sin(xx)
+
+	x = np.arange(0.0, 10.0, 0.2)
+	y = np.sin(x)
+	np.random.seed(250)
+	q_err = np.abs(np.random.normal(scatter_av, scatter_sigma, (len(x))))
+	for i in range(len(x)):
+		y[i] += np.random.normal(0.0, q_err[i])
+
+	sg = scipy.signal.savgol_filter(y, window, order, deriv = 0)
+        cov = np.diag(q_err**2)
+	sg_err = savitzky_golay_werrors.savgol_filter_werror(y, window, order, cov=cov, deriv=None)
+
+	fig = plt.figure()
+        ax = fig.add_subplot(2, 1, 1)
+        import palettable
+        ax.set_color_cycle(palettable.colorbrewer.qualitative.Dark2_8.mpl_colors)
+
+	ax.errorbar(x, y, yerr = q_err, fmt = '.', marker = 'o', ms = 3.0,
+                label = 'Noisy data')
+	ax.plot(x, sg_err, '-', label = 'This work')
+	ax.plot(x, sg, '-', label = 'Traditional Savitzky-Golay filter')
+	ax.plot(xx, y_true, '-', label = 'Noiseless')
+	ax.legend(loc = 3, frameon=0, ncol=2)
+        ax.set_ylabel("y(x)")
+        ax.set_xticklabels([])
+
+        ax = fig.add_subplot(2, 1, 2)
+        ax.set_color_cycle(palettable.colorbrewer.qualitative.Dark2_8.mpl_colors)
+        ax.errorbar(x, y-np.sin(x), q_err, fmt = '.', marker = 'o', ms = 3.0)
+	ax.plot(x, sg_err-np.sin(x), '-', label = 'This work')
+        ax.plot(x, sg-np.sin(x), '-')
+        ax.axhline(0.0, color='grey')
+        ax.set_xlabel("x")
+        ax.set_ylabel("y-sin(x)")
+
+        plt.tight_layout()
+	plt.savefig('Test_Sine_wcov.pdf')
 
 	return
 

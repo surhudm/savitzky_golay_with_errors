@@ -63,10 +63,11 @@ Tokyo Institutes for Advanced Study, The University of Tokyo,\\ 5-1-5 Kashiwanoh
 Digital filters need to be commonly applied to noisy data for the purpose of
 smoothing it and allowing a less noisy computation of the derivative. The
 commonly used filter developed by Savitzky \& Golay based on a simplified least
-squares procedure assumes equal errorbars on all data points. I present a simple
-extension of this filter to heteroscedastic errors with covariance, a typical
-case for many scientific datasets. A python implementation has been made
-available at http://github.com/surhudm/savitzky\_golay\_with\_errors for ease of use.
+squares procedure assumes no or equivalently equal errorbars on all data points.
+I present a simple extension of this filter to unequal errors with covariance, a
+typical case for many scientific datasets. A python implementation has been made
+available at http://github.com/surhudm/savitzky\_golay\_with\_errors for ease of
+use.
 \end{abstract}
 
 \keywords{}
@@ -80,9 +81,9 @@ available at http://github.com/surhudm/savitzky\_golay\_with\_errors for ease of
 
 The presence of noise in scientific data is unavoidable. The removal of noise
 from data without degrading the underlying information is fundamental to
-obtaining physical insights from the data. For cases, when detailed physical
-models are absent or difficult to construct, it is useful to smooth the data, an
-equivalent of the low pass filter in analog circuits.
+obtaining physical insights from the data. In particular smoothing is crucial in
+the absence of detailed physical models, in order to gain some phenomenological
+understanding of the observed phenomenon. 
 
 \citet{SG1964} presented a simple numerical procedure for this purpose. Consider
 data drawn from $y_i=f(x_i)+\epsilon$, where $\epsilon$ represents the noise,
@@ -108,51 +109,48 @@ all the scientific fields suggests over 9000).
 Although touted to be an optimal smoothing solution, the assumption of equal and
 independent errors is quite rarely satisfied in real data. Therefore, I simply
 recommend and extend this filter to use the errors whenever they are available.
-I will show that in the case of data with heteroscedastic errors, using these
-errors provides a much better description of the underlying signal than the
-traditional Savitzky-Golay filter.
+I will show that in the case of data with heteroscedastic (unequal) errors,
+using these errors provides a much better description of the underlying signal
+than the traditional Savitzky-Golay filter.
 
 \section{Mathematical background behind the implementation}
 
 The mathematical machinery behind the Savitzky Golay smoothing filter reduces to
 the problem of fitting a $n^{\rm th}$ degree polynomial to a set of $(2m+1)$
-data points with errors. This problem can be reduced to a matrix equation
-involving the error weighted Vandermonde matrix of the abscissa of the data.
-This is a well known problem in linear algebra, and various mathematical
-libraries such as numpy in Python implement a solution to this problem. Many
-of these libraries (for example, polyfit in  numpy.polynomial) however only
-accepts errors without dealing with the covariance between these errors.
-
-To overcome this issue, I reduce the problem of data with covariant errors to
-one where the errors are independent. The $\chi^2$ metric for the polynomial
-fitting problem with covariant errors is given by
+data points with errors. This is a well known problem in linear algebra, and we
+present the simple solution for pedagogical purposes. The $\chi^2$ metric for
+the polynomial fitting problem with covariant errors is given by
 \begin{equation}
-        \chi^2 = \sum ({\bf y}-{\bf y}_{\rm model}[{\bf x}])^T {\bf C}^{-1}
-        ({\bf y}-{\bf y}_{\rm model}[{\bf x}])\,,
+        \chi^2 = ({\bf y}-{\bf y}_{\rm model}[{\bf x}])^T {\bf C}^{-1}
+                ({\bf y}-{\bf y}_{\rm model}[{\bf x}])\,,
 \end{equation}
 where
 \begin{equation} 
-        {\bf y}_{\rm model}({\bf x}) = {\bf a} {\bf V} {\bf x}\,.
+        {\bf y}_{\rm model}({\bf x}) = {\bf V}({\bf x}){\bf a}\,.
 \end{equation}
 Here, ${\bf V}$ denotes the Vandermonde matrix, ${\bf a}$ denotes the $(n+1)$
 coefficients of the $n^{\rm th}$ degree polynomial, and we seek those
-coefficients which minimize the $\chi^2$.  The covariance matrix is a real
-symmetric matrix and therefore allows an eigen decomposition, such that ${\bf
-C}^{-1} = {\bf Q} \Lambda {\bf Q}^T$, where the columns of ${\bf Q}$ are
-eigenvectors of ${\bf C}^{-1}$, and the diagonal elements of $\Lambda$ are its
-eigenvalues. Therefore,
+coefficients which minimize the $\chi^2$. Differentiating with respect to ${\bf
+a}$ gives
+\begin{eqnarray}
+        \frac{\partial \chi^2}{\partial {\bf a}} &=& -{\bf y}^T {\bf C}^{-1} {\bf
+        V} - {\bf V}^T {\bf C}^{-1} {\bf y} + {\bf a}^T {\bf
+        V}^T {\bf C}^{-1} {\bf V} + {\bf V}^T {\bf C}^{-1} {\bf V} {\bf a} \\
+        &=& - {\bf V}^T {\bf C}^{-1} {\bf y} + {\bf V}^T {\bf C}^{-1} {\bf V}
+        {\bf a}\,,
+\end{eqnarray}
+where the second equality relies on the symmetry of the inverse covariance
+matrix which results in the first and the last two terms being equal. Equating
+the derivative to zero yields
 \begin{equation}
-\chi^2 = \sum \left[{\bf Q}^T({\bf y}-{\bf y}_{\rm model}[{\bf x}])\right]^T
-\Lambda {\bf Q}^T({\bf y}-{\bf y}_{\rm model}[{\bf x}])\,.
+        {\bf a} = \left[ {\bf V}^T {\bf C}^{-1} {\bf V}\right]^{-1} {\bf
+        V}^T{\bf C}^{-1} {\bf y}
 \end{equation}
-The next step is to solve a modified problem: perform a polynomial fit to ${\bf
-y'}={\bf Q}^T{\bf y}$ with errors given by the inverse of the square root of the
-diagonal entries of $\Lambda$. The solution to this modified problem ${\bf a'}$
-is then related to our desired solution ${\bf a}$ by ${\bf a}={\bf Q}{\bf a'}$.
 
-We provide a convenient python routine which implements the above equations,
-utilizes the standard polynomial fitting algorithm in the numpy library and
-gives the optimally filtered data. This routine has been made available online.
+We provide a convenient python routine which implements the above equations in
+case a covariance matrix is passed and returns the optimally filtered data.  For
+the special case of independent errors, the routine utilizes the standard
+polynomial fitting algorithm in the numpy library. This routine has been made available online.
 \footnote{http://github.com/surhudm/savitzky\_golay\_with\_errors}
 
 As a simple example let us consider data drawn from a sinusoid with
