@@ -34,7 +34,8 @@ TODO:
     Check that window_length and degree are integers
     Checks that y and error are arrays
 '''
-def savgol_filter_werror(y, window_length, degree, error=None, cov=None, deriv=None):
+def savgol_filter_werror(y, window_length, degree, error=None, cov=None,
+        deriv=None):
     ynew = y * 0.0
 
     # Check that window_length is odd

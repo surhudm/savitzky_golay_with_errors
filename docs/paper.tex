@@ -155,13 +155,23 @@ polynomial fitting algorithm in the numpy library. This routine has been made av
 
 As a simple example let us consider data drawn from a sinusoid with
 heteroscedastic errors. The traditional Savitzky Golay fit is compared to the
-improved version in Figure~\ref{fig:improve}. It is clear that the traditional
-smoothing filter is pulled away from the real solution by outliers which also
-have larger errors associated with them. By accounting for these errors, the
-improved filter presented in this work, provides a better alternative.
+improved version in the left panel of Figure~\ref{fig:improve}. The left hand
+panel shows a similar case, but where the errors on the data further include
+covariance. The covariance is chosen such that the strength of the
+cross-correlation between two points is inversely proportional to the square of
+the difference in their abscissa. The $\chi^2$ reported in the lower row of
+each of the panels are computed with respect to the noiseless values at each
+point but using the covariance of the noisy data, i.e., $\chi^2=({\bf y}_{\rm
+smooth}-\sin[{\bf x}])^T {\bf C}^{-1} ({\bf y}_{\rm
+smooth}-\sin[{\bf x}])$. It is clear that the traditional smoothing
+filter is pulled away from the real solution by outliers which also have larger
+errors associated with them. By accounting for these errors and their
+covariance, the improved filter presented in this work, provides a better
+alternative.
 
 \begin{figure} 
-        \centering{\includegraphics{Test_Sine.pdf}}
+        \centering{\includegraphics[scale=0.5]{Test_Sine.pdf}}
+        \centering{\includegraphics[scale=0.5]{Test_Sine_wcov.pdf}}
 \caption{
         Data from a noisy $sin(x)$ curve filtered using the traditional
         Savitzky-Golay filter which assumes equal errors compared to the
