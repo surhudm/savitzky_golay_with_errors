@@ -60,14 +60,14 @@ Tokyo Institutes for Advanced Study, The University of Tokyo,\\ 5-1-5 Kashiwanoh
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{abstract}
-Digital filters need to be commonly applied to noisy data for the purpose of
-smoothing it and allowing a less noisy computation of the derivative. The
-commonly used filter developed by Savitzky \& Golay based on a simplified least
-squares procedure assumes no or equivalently equal errorbars on all data points.
-I present a simple extension of this filter to unequal errors with covariance, a
-typical case for many scientific datasets. A python implementation has been made
-available at http://github.com/surhudm/savitzky\_golay\_with\_errors for ease of
-use.
+Digital filters are commonly applied to noisy data for the purpose of smoothing
+it and computing derivative from such data. The commonly used filter based on a
+simplified least squares procedure was developed by Savitzky \& Golay, however,
+it assumes no (or equivalently equal) errorbars on all data points.  I present a
+simple extension of this filter to unequal errors with covariance, a typical
+case for many scientific datasets. A python implementation has been made
+available at \url{http://github.com/surhudm/savitzky\_golay\_with\_errors} for
+ease of use.
 \end{abstract}
 
 \keywords{}
@@ -81,18 +81,18 @@ use.
 
 The presence of noise in scientific data is unavoidable. The removal of noise
 from data without degrading the underlying information is fundamental to
-obtaining physical insights from the data. In particular smoothing is crucial in
+obtaining physical insights from the data. In particular, smoothing is crucial in
 the absence of detailed physical models, in order to gain some phenomenological
 understanding of the observed phenomenon. 
 
 \citet{SG1964} presented a simple numerical procedure for this purpose. Consider
 data drawn from $y_i=f(x_i)+\epsilon$, where $\epsilon$ represents the noise,
 and the index $i$ runs over the $N$ data points. The algorithm presented by
-\citet{SG1964} considers a moving window (an odd integer, $2m+1$) centered
-around the data point to be smoothed. The data is approximated as a polynomial
-of degree $n$ around this point, whose parameters are determined using a least
-squares procedure. The polynomial is then used to estimate the smoothed version
-of the data. 
+\citet{SG1964} considers a moving window of $2m+1$ (an odd integer) points
+centered around the data point to be smoothed. The data is approximated as a
+polynomial of degree $n$ around this point, whose parameters are determined
+using a least squares procedure. The polynomial is then used to estimate the
+smoothed version of the data. 
 \begin{equation}
         y_{\rm SG}(x_i) = f^{\rm poly}_{n}(x_i|{y_i', i'\in[i-m,i+m]})
 \end{equation}
@@ -101,14 +101,11 @@ The solution obtained by the minimization of least squares presented in
 equivalently assumes equal errors on all data points without any covariance).
 This results in a simple solution for the problem where the data has to be
 convolved with a set of predetermined integers. This simple solution has been
-implemented in many numerical libraries including python's numpy
-(savgol\_filter) and has been used in the literature quite often (ADS suggests
-1470 citations to the paper, Google scholar which perhaps tracks citations in
-all the scientific fields suggests over 9000).
+implemented in many numerical libraries (e.g., python's scipy.signal.savgol\_filter). 
 
-Although touted to be an optimal smoothing solution, the assumption of equal and
+Although expected to be an optimal smoothing solution, the assumption of equal and
 independent errors is quite rarely satisfied in real data. Therefore, I simply
-recommend and extend this filter to use the errors whenever they are available.
+recommend and extend this filter to use the errors or the covariance whenever they are available.
 I will show that in the case of data with heteroscedastic (unequal) errors,
 using these errors provides a much better description of the underlying signal
 than the traditional Savitzky-Golay filter.
@@ -117,7 +114,7 @@ than the traditional Savitzky-Golay filter.
 
 The mathematical machinery behind the Savitzky Golay smoothing filter reduces to
 the problem of fitting a $n^{\rm th}$ degree polynomial to a set of $(2m+1)$
-data points with errors. This is a well known problem in linear algebra, and we
+data points with errors. This is a well known problem in linear algebra, and I
 present the simple solution for pedagogical purposes. The $\chi^2$ metric for
 the polynomial fitting problem with covariant errors is given by
 \begin{equation}
@@ -129,14 +126,14 @@ where
         {\bf y}_{\rm model}({\bf x}) = {\bf V}({\bf x}){\bf a}\,.
 \end{equation}
 Here, ${\bf V}$ denotes the Vandermonde matrix, ${\bf a}$ denotes the $(n+1)$
-coefficients of the $n^{\rm th}$ degree polynomial, and we seek those
+coefficients of the $n^{\rm th}$ degree polynomial, and let us seek the
 coefficients which minimize the $\chi^2$. Differentiating with respect to ${\bf
 a}$ gives
 \begin{eqnarray}
         \frac{\partial \chi^2}{\partial {\bf a}} &=& -{\bf y}^T {\bf C}^{-1} {\bf
         V} - {\bf V}^T {\bf C}^{-1} {\bf y} + {\bf a}^T {\bf
         V}^T {\bf C}^{-1} {\bf V} + {\bf V}^T {\bf C}^{-1} {\bf V} {\bf a} \\
-        &=& - {\bf V}^T {\bf C}^{-1} {\bf y} + {\bf V}^T {\bf C}^{-1} {\bf V}
+        &=& -2 {\bf V}^T {\bf C}^{-1} {\bf y} + 2{\bf V}^T {\bf C}^{-1} {\bf V}
         {\bf a}\,,
 \end{eqnarray}
 where the second equality relies on the symmetry of the inverse covariance
@@ -147,11 +144,11 @@ the derivative to zero yields
         V}^T{\bf C}^{-1} {\bf y}
 \end{equation}
 
-We provide a convenient python routine which implements the above equations in
+I provide a convenient python routine which implements the above equations in
 case a covariance matrix is passed and returns the optimally filtered data.  For
 the special case of independent errors, the routine utilizes the standard
 polynomial fitting algorithm in the numpy library. This routine has been made available online.
-\footnote{http://github.com/surhudm/savitzky\_golay\_with\_errors}
+\footnote{\url{http://github.com/surhudm/savitzky\_golay\_with\_errors}}
 
 As a simple example let us consider data drawn from a sinusoid with
 heteroscedastic errors. The traditional Savitzky Golay fit is compared to the
