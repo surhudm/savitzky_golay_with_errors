@@ -9,3 +9,5 @@ This kind of filter has been often used in the scientific literature. However
 almost all data inherently comes with noise, and the noise properties can differ
 from point to point. This python script improves upon the traditional
 Savitzky-Golay filter by accounting for errors or covariance in the data.
+
+The inputs and arguments are all modelled after scipy.signal.savgol_filter
